@@ -1,0 +1,23 @@
+.form {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.hint {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+.errorMessage { color: var(--color-error); }
+
+.options {
+  display: grid;
+  gap: var(--space-2);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.options button {
+  inline-size: 100%;
+  text-align: start;
+}

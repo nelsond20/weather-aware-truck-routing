@@ -1,0 +1,46 @@
+:root {
+  color-scheme: light;
+
+  --color-page: #f1f5f8;
+  --color-surface: #fff;
+  --color-text: #19354b;
+  --color-text-muted: #4c6171;
+  --color-border: #78909f;
+  --color-action: #184f77;
+  --color-on-action: #fff;
+  --color-error: #9e2638;
+  --color-focus: #175e96;
+  --color-risk-low: #16664b;
+  --color-risk-moderate: #80611b;
+  --color-risk-high: #a54905;
+  --color-risk-severe: #a52e42;
+  --color-risk-no-travel: #59182e;
+  --color-risk-unknown: #526476;
+  --space-1: .25rem;
+  --space-2: .5rem;
+  --space-3: .75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --radius-control: .35rem;
+  --radius-panel: .7rem;
+  --border-thin: 1px;
+  --border-strong: 2px;
+  --focus-width: 3px;
+  --text-sm: .85rem;
+  --text-base: 1rem;
+  --text-lg: 1.2rem;
+  --text-xl: 1.65rem;
+  --text-2xl: 2rem;
+  --font-body: system-ui, -apple-system, sans-serif;
+  --font-data: ui-monospace, monospace;
+  --line-body: 1.5;
+  --panel-width: 24rem;
+  --map-height: 34rem;
+  --map-height-mobile: 26rem;
+  --content-max: 100rem;
+  --z-dropdown: 10;
+
+  /* Page breakpoint: 64rem. No dark theme requested in the approved design. */
+}
