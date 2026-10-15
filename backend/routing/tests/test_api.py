@@ -49,3 +49,37 @@ class ApiTests(APITestCase):
             serializer=TripInputSerializer(data=dict(INPUT,departure_at='2026-11-01T01:30:00'+offset),context={'now':datetime(2026,10,13,tzinfo=timezone.utc)})
             self.assertTrue(serializer.is_valid(),serializer.errors);results.append(serializer.validated_data['departure_at'])
         self.assertEqual((results[1]-results[0]).total_seconds(),3600)
+
+    def test_corridor_route_count_rejected_before_nested_geometry_validation(self):
+        from routing.api.serializers import CorridorInputSerializer
+        serializer=CorridorInputSerializer(data={'routes':[{}]*4,'load_lb':1},context={'now':datetime(2026,10,13,11,tzinfo=timezone.utc)})
+        self.assertFalse(serializer.is_valid())
+        self.assertIsInstance(serializer.errors['routes'],dict)
+        self.assertIn('non_field_errors',serializer.errors['routes'])
+        self.assertEqual(serializer.errors['routes']['non_field_errors'][0].code,'max_length')
+
+    def test_corridor_total_vertex_limit_precedes_coordinate_validation(self):
+        from routing.api.serializers import CorridorInputSerializer
+        serializer=CorridorInputSerializer(data={'routes':[
+            {'type':'LineString','coordinates':[['invalid']]*10001},
+            {'type':'LineString','coordinates':[['invalid']]*10000},
+        ],'load_lb':1},context={'now':datetime(2026,10,13,11,tzinfo=timezone.utc)})
+        self.assertFalse(serializer.is_valid())
+        self.assertIsInstance(serializer.errors['routes'],dict)
+        self.assertIn('non_field_errors',serializer.errors['routes'])
+        self.assertEqual(serializer.errors['routes']['non_field_errors'][0].code,'max_length')
+
+    def test_repeated_invalid_corridor_requests_are_rate_limited(self):
+        payload={'routes':[{}]*4,'load_lb':1}
+        for _ in range(5):
+            self.assertEqual(self.client.post('/api/weather/corridor/',payload,format='json').status_code,400)
+        response=self.client.post('/api/weather/corridor/',payload,format='json')
+        self.assertEqual(response.status_code,429)
+        self.assertEqual(response.data['code'],'rate_limited')
+
+    def test_busy_corridor_rejects_before_parsing_geometry(self):
+        from routing.services.budget import admission
+        with admission(),admission():
+            response=self.client.post('/api/weather/corridor/',{'routes':[{}]*4,'load_lb':1},format='json')
+        self.assertEqual(response.status_code,503)
+        self.assertEqual(response.data['code'],'service_busy')

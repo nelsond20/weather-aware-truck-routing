@@ -68,9 +68,18 @@ class GeometrySerializer(StrictSerializer):
         return result
 
 class CorridorInputSerializer(StrictSerializer):
-    routes = GeometrySerializer(many=True,allow_empty=False)
+    routes = GeometrySerializer(many=True,allow_empty=False,max_length=3)
     load_lb = StrictFloat(min_value=0,max_value=1000000)
     base_time = serializers.CharField(max_length=64,required=False)
+    def to_internal_value(self,data):
+        # Bound aggregate work before nested serializers validate every coordinate.
+        routes=data.get('routes') if isinstance(data,dict) else None
+        if isinstance(routes,list) and len(routes)<=3:
+            count=sum(len(route['coordinates']) for route in routes
+                      if isinstance(route,dict) and isinstance(route.get('coordinates'),list))
+            if count>20000:
+                raise serializers.ValidationError({'routes':{'non_field_errors':['Too many route vertices.']}},code='max_length')
+        return super().to_internal_value(data)
     def validate_routes(self,values):
         if len(values)>3 or sum(len(v['coordinates']) for v in values)>20000:raise serializers.ValidationError('Too many route vertices.')
         if any(len({tuple(p) for p in v['coordinates']})<2 for v in values):raise serializers.ValidationError('Route must have positive distance.')

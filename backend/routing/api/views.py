@@ -48,16 +48,16 @@ class CorridorView(APIView):
         from .output import corridor_json
         from routing.domain.models import RawRoute,RouteSegment
         from routing.domain.geometry import haversine_m
-        now=get_current_time()
-        serializer=CorridorInputSerializer(data=request.data,context={'now':now});serializer.is_valid(raise_exception=True)
         limited=throttle(request,'corridor')
         if limited is not None:return limited
-        data=serializer.validated_data
-        routes=[]
-        for i,value in enumerate(data['routes']):
-            points=tuple(Coordinate(*pair) for pair in value['coordinates'])
-            routes.append(RawRoute(str(i),points,tuple(RouteSegment(a,b,haversine_m(a,b),0) for a,b in zip(points,points[1:]))))
-        base=data.get('base_time',now.replace(minute=0,second=0,microsecond=0))
         with admission():
+            now=get_current_time()
+            serializer=CorridorInputSerializer(data=request.data,context={'now':now});serializer.is_valid(raise_exception=True)
+            data=serializer.validated_data
+            routes=[]
+            for i,value in enumerate(data['routes']):
+                points=tuple(Coordinate(*pair) for pair in value['coordinates'])
+                routes.append(RawRoute(str(i),points,tuple(RouteSegment(a,b,haversine_m(a,b),0) for a,b in zip(points,points[1:]))))
+            base=data.get('base_time',now.replace(minute=0,second=0,microsecond=0))
             services=get_services()
             return Response(corridor_json(services.corridor.forecast(tuple(routes),data['load_lb'],base),services.mode))
