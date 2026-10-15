@@ -77,7 +77,9 @@ def request_json(url,params):
                                 with _public_lock:
                                     _public_cooldown[parsed.hostname] = time.monotonic() + max(1, delay)
                             raise ProviderError('provider_rate_limited','Provider quota is unavailable.',True)
-                        if response.status_code!=200:
+                        # Valhalla returns structured route-limit errors with HTTP 400.
+                        routing_error = parsed.hostname=='valhalla1.openstreetmap.de' and response.status_code==400
+                        if response.status_code!=200 and not routing_error:
                             raise ProviderError('provider_unavailable','Provider is unavailable.',True)
                         content=bytearray()
                         for chunk in response.iter_bytes():

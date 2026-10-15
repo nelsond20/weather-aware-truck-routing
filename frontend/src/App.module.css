@@ -55,4 +55,27 @@
   justify-content: center;
 }
 
+.notice {
+  inline-size: min(var(--panel-width), calc(100% - var(--space-6)));
+  max-block-size: calc(100dvh - var(--space-6));
+  overflow: auto;
+  overflow-wrap: anywhere;
+  margin: auto;
+  padding: var(--space-5);
+  border: var(--border-thin) solid var(--color-border);
+  border-radius: var(--radius-panel);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
+
+.notice::backdrop {
+  background-color: var(--color-backdrop);
+}
+
+.noticeActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-block-start: var(--space-5);
+}
+
 @media (width >= 64rem) { .layout { grid-template-columns: var(--panel-width) minmax(0, 1fr); } .app { padding: var(--space-6); } }

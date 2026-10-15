@@ -48,5 +48,8 @@ test('evaluates real demo backend, inspects blocked route and changes frames wit
 test('keeps recommendation if only corridor forecast fails',async({page})=>{
   await page.route('**/api/weather/corridor/',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({code:'provider_timeout',message:'Weather provider timed out.',retryable:true})}));
   await page.goto('/');await fillTrip(page,30000);await page.getByRole('button',{name:'Evaluate routes'}).click();
+  const notice=page.getByRole('dialog',{name:'Service timed out'});
+  await expect(notice).toContainText('Weather provider timed out.');
+  await notice.getByRole('button',{name:'Close'}).click();
   await expect(page.getByText('Recommended',{exact:true})).toBeVisible();await expect(page.getByRole('alert')).toHaveText(/Corridor: Weather provider timed out/);
 });

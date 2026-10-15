@@ -83,3 +83,11 @@ class ApiTests(APITestCase):
             response=self.client.post('/api/weather/corridor/',{'routes':[{}]*4,'load_lb':1},format='json')
         self.assertEqual(response.status_code,503)
         self.assertEqual(response.data['code'],'service_busy')
+
+    def test_unroutable_inputs_are_reported_as_non_retryable_client_errors(self):
+        from routing.providers.base import ProviderError
+        for code in ('route_distance_exceeded','route_location_unavailable','no_route'):
+            with self.subTest(code=code),patch.object(self.routing,'routes',side_effect=ProviderError(code,'Choose other locations.')):
+                response=self.client.post('/api/trips/evaluate/',INPUT,format='json')
+                self.assertEqual(response.status_code,400)
+                self.assertEqual(response.data,{'code':code,'message':'Choose other locations.','retryable':False})

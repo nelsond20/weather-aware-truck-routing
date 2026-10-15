@@ -79,3 +79,29 @@ class ValhallaTests(unittest.TestCase):
             with self.subTest(provider=name), override_settings(LIVE_ROUTING_PROVIDER=name):
                 self.assertEqual(type(build_services('live').trip.routing).__name__, expected)
                 self.assertEqual(type(build_services('demo').trip.routing).__name__, 'DemoRoutingProvider')
+
+    def test_identifies_routing_limits_without_exposing_upstream_messages(self):
+        for payload,expected in (
+            ({'code':'DistanceExceeded','message':'private upstream details'},'route_distance_exceeded'),
+            ({'error_code':154,'error':'private upstream details'},'route_distance_exceeded'),
+            ({'error_code':170},'no_route'),
+            ({'error_code':171},'route_location_unavailable'),
+            ({'error_code':441},'no_route'),
+            ({'error_code':442},'no_route'),
+        ):
+            with self.subTest(payload=payload):
+                with self.assertRaises(ProviderError) as caught:
+                    self.provider(lambda *args:payload).routes(Coordinate(-100,40),Coordinate(-99,40))
+                self.assertEqual(caught.exception.code,expected)
+                self.assertFalse(caught.exception.retryable)
+                self.assertNotIn('private upstream details',caught.exception.message)
+
+    def test_distance_exceeded_http_400_reaches_the_routing_adapter(self):
+        import httpx
+        real_client=httpx.Client
+        transport=httpx.MockTransport(lambda request:httpx.Response(400,json={'code':'DistanceExceeded','message':'Path distance exceeds the max distance limit.'}))
+        http._last_public_request.clear()
+        with patch('routing.providers.http.httpx.Client',side_effect=lambda **kwargs:real_client(transport=transport,**kwargs)):
+            with self.assertRaises(ProviderError) as caught:
+                self.provider(http.request_json).routes(Coordinate(-100,40),Coordinate(-99,40))
+        self.assertEqual(caught.exception.code,'route_distance_exceeded')

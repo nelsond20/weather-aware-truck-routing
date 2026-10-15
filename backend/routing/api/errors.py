@@ -10,7 +10,7 @@ def codes(value):
 
 def exception_handler(exc,context):
     if isinstance(exc,ProviderError):
-        status=400 if exc.code in ('sampling_limit_exceeded','invalid_base_time') else 502 if exc.code=='provider_contract_invalid' else 503
+        status=400 if exc.code in ('sampling_limit_exceeded','invalid_base_time','route_distance_exceeded','route_location_unavailable','no_route') else 502 if exc.code=='provider_contract_invalid' else 503
         return Response({'code':exc.code,'message':exc.message,'retryable':exc.retryable},status=status)
     if isinstance(exc,(ValidationError,ParseError)):
         found=codes(getattr(exc,'detail',None))

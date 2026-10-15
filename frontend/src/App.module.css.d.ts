@@ -6,6 +6,8 @@ declare const styles: {
   readonly "eyebrow": string;
   readonly "header": string;
   readonly "layout": string;
+  readonly "notice": string;
+  readonly "noticeActions": string;
   readonly "sidebar": string;
   readonly "workspace": string;
 };
