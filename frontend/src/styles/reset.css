@@ -1,0 +1,4 @@
+* { box-sizing: border-box; }
+body { margin: 0; }
+button, input, select { font: inherit; }
+img, canvas { display: block; }

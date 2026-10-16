@@ -1,0 +1,14 @@
+import type { z } from 'zod';
+import type { positionSchema,riskSchema,lineSchema,geocodeSchema,tripInputSchema,tripSchema,corridorInputSchema,corridorSchema,coverageSchema,apiErrorSchema,routeSchema } from './schemas';
+export type Position=z.infer<typeof positionSchema>;
+export type RiskLevel=z.infer<typeof riskSchema>;
+export type LineGeometry=z.infer<typeof lineSchema>;
+export type GeocodeCandidate=z.infer<typeof geocodeSchema>[number];
+export type TripInput=z.infer<typeof tripInputSchema>;
+export type TripResponse=z.infer<typeof tripSchema>;
+export type RouteResult=z.infer<typeof routeSchema>;
+export type CheckpointResult=RouteResult['checkpoints'][number];
+export type CorridorInput=z.infer<typeof corridorInputSchema>;
+export type CorridorResponse=z.infer<typeof corridorSchema>;
+export type Coverage=z.infer<typeof coverageSchema>;
+export type ApiError=z.infer<typeof apiErrorSchema>;

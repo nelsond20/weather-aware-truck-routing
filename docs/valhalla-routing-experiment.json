@@ -1,0 +1,434 @@
+[
+  {
+    "pair": "New York \u2192 Newark",
+    "origin": [
+      -73.9857,
+      40.7484
+    ],
+    "destination": [
+      -74.1724,
+      40.7357
+    ],
+    "osrm_routes": 2,
+    "valhalla_routes": 3,
+    "raw_routes": 3,
+    "ids": [
+      "096ab5b4bd17073fc4cb26b2",
+      "65de6fc0f55e62e9a10a84ab",
+      "08a85a511c56a6b0d01fa978"
+    ],
+    "vertices": 2255,
+    "eta_approximate": true,
+    "seconds": 1.707
+  },
+  {
+    "pair": "Oakland \u2192 Berkeley",
+    "origin": [
+      -122.2711,
+      37.8044
+    ],
+    "destination": [
+      -122.2727,
+      37.8715
+    ],
+    "osrm_routes": 2,
+    "valhalla_routes": 3,
+    "raw_routes": 3,
+    "ids": [
+      "50de506f2260433c7f5950ff",
+      "fd1b247e5fc842ab2633e647",
+      "2c8d904719d78e0e370fed67"
+    ],
+    "vertices": 1632,
+    "eta_approximate": true,
+    "seconds": 1.507
+  },
+  {
+    "pair": "San Jose \u2192 Oakland",
+    "origin": [
+      -121.8863,
+      37.3382
+    ],
+    "destination": [
+      -122.2711,
+      37.8044
+    ],
+    "osrm_routes": 1,
+    "valhalla_routes": 3,
+    "raw_routes": 3,
+    "ids": [
+      "4bd93e9169aef78177ecd81a",
+      "5ac956413042d9a6fb1740af",
+      "13e3ca36b9b32f6d2fa8f14d"
+    ],
+    "vertices": 3371,
+    "eta_approximate": true,
+    "seconds": 1.782
+  },
+  {
+    "pair": "Los Angeles \u2192 Santa Monica",
+    "origin": [
+      -118.2437,
+      34.0522
+    ],
+    "destination": [
+      -118.4912,
+      34.0195
+    ],
+    "osrm_routes": 1,
+    "valhalla_routes": 1,
+    "raw_routes": 1,
+    "ids": [
+      "bf4ec92549a5b40d7ab43e77"
+    ],
+    "vertices": 405,
+    "eta_approximate": true,
+    "seconds": 1.068
+  },
+  {
+    "pair": "Seattle \u2192 Bellevue",
+    "origin": [
+      -122.3321,
+      47.6062
+    ],
+    "destination": [
+      -122.2015,
+      47.6101
+    ],
+    "osrm_routes": 2,
+    "valhalla_routes": 2,
+    "raw_routes": 2,
+    "ids": [
+      "8927f5a03e84c319f2620171",
+      "6701089d199ae286c84dd4e8"
+    ],
+    "vertices": 819,
+    "eta_approximate": true,
+    "seconds": 1.297
+  },
+  {
+    "pair": "Washington \u2192 Baltimore",
+    "origin": [
+      -77.0369,
+      38.9072
+    ],
+    "destination": [
+      -76.6122,
+      39.2904
+    ],
+    "osrm_routes": 2,
+    "valhalla_routes": 3,
+    "raw_routes": 3,
+    "ids": [
+      "56eb70451bbbd49ec594a189",
+      "f6ac533855b73266fa61197d",
+      "56aed8828a072620d60271b8"
+    ],
+    "vertices": 3833,
+    "eta_approximate": true,
+    "seconds": 1.934
+  },
+  {
+    "pair": "Dallas \u2192 Fort Worth",
+    "origin": [
+      -96.797,
+      32.7767
+    ],
+    "destination": [
+      -97.3308,
+      32.7555
+    ],
+    "osrm_routes": 2,
+    "valhalla_routes": 3,
+    "raw_routes": 3,
+    "ids": [
+      "2f0053ee47d6ff644bb66502",
+      "d0c6dbb704951d06c580b433",
+      "d9ffa8e6466c4644555fd00c"
+    ],
+    "vertices": 1969,
+    "eta_approximate": true,
+    "seconds": 1.489
+  },
+  {
+    "pair": "Toronto \u2192 Mississauga",
+    "origin": [
+      -79.3832,
+      43.6532
+    ],
+    "destination": [
+      -79.6441,
+      43.589
+    ],
+    "osrm_routes": 1,
+    "valhalla_routes": 3,
+    "raw_routes": 3,
+    "ids": [
+      "51c1dd664399ff9f1dd23e7a",
+      "49aed1ebc7b16d555c325959",
+      "c2994ac46f17cd04b2cfbb7a"
+    ],
+    "vertices": 1731,
+    "eta_approximate": true,
+    "seconds": 1.634
+  },
+  {
+    "pair": "Brussels \u2192 Antwerp",
+    "origin": [
+      4.3517,
+      50.8503
+    ],
+    "destination": [
+      4.4025,
+      51.2194
+    ],
+    "osrm_routes": 2,
+    "valhalla_routes": 2,
+    "raw_routes": 2,
+    "ids": [
+      "3a6a8d342ffa4c26905c47e6",
+      "cecbee18fa5376821fa4f17d"
+    ],
+    "vertices": 1812,
+    "eta_approximate": true,
+    "seconds": 1.49
+  },
+  {
+    "pair": "Frankfurt \u2192 Mainz",
+    "origin": [
+      8.6821,
+      50.1109
+    ],
+    "destination": [
+      8.2473,
+      49.9929
+    ],
+    "osrm_routes": 2,
+    "valhalla_routes": 3,
+    "raw_routes": 3,
+    "ids": [
+      "a94da334d1f4b85c9f5c8294",
+      "53533b046633418526a11e65",
+      "3f687468b5d0c72d9e58ab17"
+    ],
+    "vertices": 3224,
+    "eta_approximate": true,
+    "seconds": 1.779
+  },
+  {
+    "pair": "Stuttgart \u2192 Heilbronn",
+    "origin": [
+      9.1829,
+      48.7758
+    ],
+    "destination": [
+      9.2182,
+      49.1427
+    ],
+    "osrm_routes": 1,
+    "valhalla_routes": 3,
+    "raw_routes": 3,
+    "ids": [
+      "8884adf56e947a54887c7ca1",
+      "5431f2532537bce8d3c90b06",
+      "35d44a7437b68656b2b769d1"
+    ],
+    "vertices": 5176,
+    "eta_approximate": true,
+    "seconds": 1.882
+  },
+  {
+    "pair": "Bologna \u2192 Modena",
+    "origin": [
+      11.3426,
+      44.4949
+    ],
+    "destination": [
+      10.9252,
+      44.6471
+    ],
+    "osrm_routes": 1,
+    "valhalla_routes": 3,
+    "raw_routes": 3,
+    "ids": [
+      "4e0c6714eaa63236be7d5e93",
+      "5db027bcac2e65175179e0eb",
+      "a8e147c0facc40bb85053d67"
+    ],
+    "vertices": 3259,
+    "eta_approximate": true,
+    "seconds": 3.52
+  },
+  {
+    "pair": "Zurich \u2192 Winterthur",
+    "origin": [
+      8.5417,
+      47.3769
+    ],
+    "destination": [
+      8.7241,
+      47.499
+    ],
+    "osrm_routes": 1,
+    "valhalla_routes": 2,
+    "raw_routes": 2,
+    "ids": [
+      "722ffe5bee90bbbdf590940f",
+      "c8fc4fe8b138763fa7496308"
+    ],
+    "vertices": 2368,
+    "eta_approximate": true,
+    "seconds": 2.521
+  },
+  {
+    "pair": "Birmingham \u2192 Coventry",
+    "origin": [
+      -1.8904,
+      52.4862
+    ],
+    "destination": [
+      -1.5083,
+      52.4081
+    ],
+    "osrm_routes": 1,
+    "valhalla_routes": 3,
+    "raw_routes": 3,
+    "ids": [
+      "bbe137fa679d7c9de518f90a",
+      "fe190d15f338c5e15409a3c1",
+      "eb01fd888e7daec582651b9c"
+    ],
+    "vertices": 2975,
+    "eta_approximate": true,
+    "seconds": 1.743
+  },
+  {
+    "pair": "San Francisco \u2192 Oakland",
+    "origin": [
+      -122.4194,
+      37.7749
+    ],
+    "destination": [
+      -122.2711,
+      37.8044
+    ],
+    "osrm_routes": 1,
+    "valhalla_routes": 1,
+    "raw_routes": 1,
+    "ids": [
+      "16b0ca28c9aba64054ed72e7"
+    ],
+    "vertices": 602,
+    "eta_approximate": true,
+    "seconds": 1.058
+  },
+  {
+    "pair": "Rotterdam \u2192 Utrecht",
+    "origin": [
+      4.4777,
+      51.9244
+    ],
+    "destination": [
+      5.1214,
+      52.0907
+    ],
+    "osrm_routes": 1,
+    "valhalla_routes": 2,
+    "raw_routes": 2,
+    "ids": [
+      "45d37b7c213464019adbe8e6",
+      "894b5678dd9b82368d9da40f"
+    ],
+    "vertices": 2385,
+    "eta_approximate": true,
+    "seconds": 1.579
+  },
+  {
+    "pair": "Tokyo \u2192 Yokohama",
+    "origin": [
+      139.6917,
+      35.6895
+    ],
+    "destination": [
+      139.638,
+      35.4437
+    ],
+    "osrm_routes": 2,
+    "valhalla_routes": 3,
+    "raw_routes": 3,
+    "ids": [
+      "5ad506382fa3dcaca3e31607",
+      "e6d1d3c19471f961c0e41788",
+      "91162125dc7b14db9c3ab8e1"
+    ],
+    "vertices": 2851,
+    "eta_approximate": true,
+    "seconds": 1.634
+  },
+  {
+    "pair": "Osaka \u2192 Kyoto",
+    "origin": [
+      135.5023,
+      34.6937
+    ],
+    "destination": [
+      135.7681,
+      35.0116
+    ],
+    "osrm_routes": 2,
+    "valhalla_routes": 3,
+    "raw_routes": 3,
+    "ids": [
+      "9ed32a9104151f64aca2db37",
+      "f280e6c780e7800b7556eff9",
+      "e9dfd86d77f52fb32243ff19"
+    ],
+    "vertices": 2967,
+    "eta_approximate": true,
+    "seconds": 1.765
+  },
+  {
+    "pair": "Sydney \u2192 Parramatta",
+    "origin": [
+      151.2093,
+      -33.8688
+    ],
+    "destination": [
+      151.0035,
+      -33.815
+    ],
+    "osrm_routes": 1,
+    "valhalla_routes": 3,
+    "raw_routes": 3,
+    "ids": [
+      "289466f55aaf917d4ec61f98",
+      "9ee2910be43116c752d7e063",
+      "dda7ff100fe0548d35be9a63"
+    ],
+    "vertices": 2544,
+    "eta_approximate": true,
+    "seconds": 1.674
+  },
+  {
+    "pair": "S\u00e3o Paulo \u2192 Santo Andr\u00e9",
+    "origin": [
+      -46.6333,
+      -23.5505
+    ],
+    "destination": [
+      -46.5333,
+      -23.6666
+    ],
+    "osrm_routes": 2,
+    "valhalla_routes": 3,
+    "raw_routes": 3,
+    "ids": [
+      "a449dbe9eb6b5627bc26dbde",
+      "fb9e2c4779c8090dd40ba90f",
+      "5fcf8a97f373ad4f28eae9a5"
+    ],
+    "vertices": 1823,
+    "eta_approximate": true,
+    "seconds": 1.509
+  }
+]
