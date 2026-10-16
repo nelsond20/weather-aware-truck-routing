@@ -107,3 +107,43 @@ class TransportTests(unittest.TestCase):
                 with patch('routing.providers.http.httpx.Client',side_effect=lambda **kwargs:real_client(transport=httpx.MockTransport(handle),**kwargs)),patch('routing.providers.http.time.sleep') as wait,patch('routing.providers.http.remaining_seconds',return_value=remaining):
                     with self.assertRaises(ProviderError) as caught:request_json('https://api.open-meteo.com/v1/forecast',{})
                 self.assertEqual(caught.exception.code,code);self.assertEqual(len(requests),1);wait.assert_not_called()
+
+    def test_upstream_429_and_local_cooldown_are_distinguishable_in_logs(self):
+        with patch('routing.providers.http.httpx.Client') as client, patch('routing.providers.http.time.monotonic',return_value=10):
+            self.response(client,429,{'Retry-After':'120'})
+            with self.assertLogs('routing.providers.http',level='INFO') as logs:
+                for _ in range(2):
+                    with self.assertRaises(ProviderError) as caught:
+                        request_json('https://photon.komoot.io/api/',{'q':'private search'})
+                    self.assertEqual(caught.exception.code,'provider_rate_limited')
+                    self.assertTrue(caught.exception.retryable)
+            output='\n'.join(logs.output)
+            self.assertIn('provider=photon host=photon.komoot.io',output)
+            self.assertIn('source=upstream status=429 attempt=1 max_attempts=1',output)
+            self.assertIn('source=upstream_cooldown status=none attempt=0',output)
+            self.assertNotIn('private search',output)
+            self.assertEqual(client.call_count,1)
+
+    def test_weather_logs_each_retry_without_logging_query_parameters(self):
+        real_client=httpx.Client
+        transport=httpx.MockTransport(lambda request:httpx.Response(429,json={'error':'private upstream body'}))
+        with patch('routing.providers.http.httpx.Client',side_effect=lambda **kwargs:real_client(transport=transport,**kwargs)),patch('routing.providers.http.time.sleep'),self.assertLogs('routing.providers.http',level='INFO') as logs:
+            with self.assertRaises(ProviderError) as caught:
+                request_json('https://api.open-meteo.com/v1/forecast',{'apikey':'private key'})
+        self.assertEqual(caught.exception.code,'provider_rate_limited')
+        self.assertTrue(caught.exception.retryable)
+        self.assertEqual(len(logs.output),3)
+        for attempt,entry in enumerate(logs.output,1):
+            self.assertIn('provider=open-meteo host=api.open-meteo.com',entry)
+            self.assertIn(f'source=upstream status=429 attempt={attempt} max_attempts=3',entry)
+            self.assertNotIn('private',entry)
+
+    def test_retry_budget_logs_the_upstream_status_that_caused_it(self):
+        real_client=httpx.Client
+        transport=httpx.MockTransport(lambda request:httpx.Response(429,json={},headers={'Retry-After':'120'}))
+        with patch('routing.providers.http.httpx.Client',side_effect=lambda **kwargs:real_client(transport=transport,**kwargs)),patch('routing.providers.http.remaining_seconds',return_value=2),patch('routing.providers.http.time.sleep') as wait,self.assertLogs('routing.providers.http',level='INFO') as logs:
+            with self.assertRaises(ProviderError) as caught:
+                request_json('https://api.open-meteo.com/v1/forecast',{})
+        self.assertEqual(caught.exception.code,'provider_rate_limited')
+        self.assertIn('source=retry_budget status=429 attempt=1',logs.output[-1])
+        wait.assert_not_called()

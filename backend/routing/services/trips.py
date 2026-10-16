@@ -1,4 +1,5 @@
 """Compose the shared domain; never cache classifications."""
+import logging
 import math
 from routing.domain.models import TripRequest, TripEvaluation
 from routing.domain.checkpoints import sample_route, validate_route
@@ -8,6 +9,8 @@ from routing.domain.recommendation import evaluate_route, recommend_routes
 from routing.providers.base import RoutingProvider, WeatherProvider, ProviderError
 from .cache import RawDataCache, CachedWeatherProvider, route_cache_key
 from .budget import check_deadline
+
+logger = logging.getLogger(__name__)
 
 class TripService:
     def __init__(self, routing: RoutingProvider, weather: WeatherProvider, cache: RawDataCache, mode: str, routing_provider='osrm'):
@@ -61,5 +64,7 @@ def build_services(mode: str):
         weather,geocoding=OpenMeteoWeatherProvider(request_json),PhotonGeocodingProvider(request_json)
     else:
         raise ValueError('PROVIDER_MODE must be demo or live.')
+    logger.info('provider_configuration mode=%s configured_routing_provider=%s active_routing_provider=%s weather_provider=%s geocoding_provider=%s',
+                mode,settings.LIVE_ROUTING_PROVIDER,type(routing).__name__,type(weather).__name__,type(geocoding).__name__)
     cache = RawDataCache(django_cache)
     return SimpleNamespace(trip=TripService(routing,weather,cache,mode,routing_provider),corridor=CorridorService(weather,cache,mode),geocoding=geocoding,mode=mode)

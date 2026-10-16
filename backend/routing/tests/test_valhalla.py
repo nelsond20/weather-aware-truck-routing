@@ -77,7 +77,9 @@ class ValhallaTests(unittest.TestCase):
         from routing.services.trips import build_services
         for name, expected in (('osrm', 'OSRMRoutingProvider'), ('valhalla', 'ValhallaRoutingProvider')):
             with self.subTest(provider=name), override_settings(LIVE_ROUTING_PROVIDER=name):
-                self.assertEqual(type(build_services('live').trip.routing).__name__, expected)
+                with self.assertLogs('routing.services.trips',level='INFO') as logs:
+                    self.assertEqual(type(build_services('live').trip.routing).__name__, expected)
+                self.assertIn(f'mode=live configured_routing_provider={name} active_routing_provider={expected}',logs.output[0])
                 self.assertEqual(type(build_services('demo').trip.routing).__name__, 'DemoRoutingProvider')
 
     def test_identifies_routing_limits_without_exposing_upstream_messages(self):

@@ -1,3 +1,4 @@
+import logging
 import time
 from contextvars import ContextVar
 from contextlib import contextmanager
@@ -5,6 +6,7 @@ from threading import BoundedSemaphore
 from routing.providers.base import ProviderError
 _deadline = ContextVar('weather_request_deadline',default=None)
 _slots = BoundedSemaphore(2)
+logger = logging.getLogger(__name__)
 
 def remaining_seconds():
     deadline = _deadline.get()
@@ -12,11 +14,13 @@ def remaining_seconds():
 
 def check_deadline():
     if remaining_seconds() <= 0:
+        logger.warning('operation_rejected source=internal_budget limiter=operation_deadline code=provider_timeout')
         raise ProviderError('provider_timeout','Evaluation exceeded its time limit.',True)
 
 @contextmanager
 def admission():
     if not _slots.acquire(blocking=False):
+        logger.warning('operation_rejected source=internal_budget limiter=concurrency code=service_busy')
         raise ProviderError('service_busy','Service is busy. Try again shortly.',True)
     token = _deadline.set(time.monotonic()+45)
     try:

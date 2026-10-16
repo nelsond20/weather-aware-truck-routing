@@ -32,3 +32,7 @@ CACHES = {'default':{'BACKEND':'django.core.cache.backends.locmem.LocMemCache'}}
 # Production proxy must enforce shared limits before multiple workers.
 
 LOGGING = {'version':1,'disable_existing_loggers':False,'handlers':{'discard':{'class':'logging.NullHandler'}},'loggers':{'django.server':{'handlers':['discard'],'propagate':False}}}
+# Provider diagnostics stay server-side and exclude URLs, parameters and bodies.
+LOGGING['formatters'] = {'provider':{'format':'%(asctime)s %(levelname)s %(name)s %(message)s'}}
+LOGGING['handlers']['provider_console'] = {'class':'logging.StreamHandler','formatter':'provider'}
+LOGGING['loggers']['routing'] = {'handlers':['provider_console'],'level':'INFO','propagate':False}

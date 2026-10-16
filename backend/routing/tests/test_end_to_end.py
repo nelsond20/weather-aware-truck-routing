@@ -82,10 +82,14 @@ class DemoEndpointTests(APITestCase):
     def test_busy_admission_and_expired_deadline(self):
         from routing.services.budget import admission,check_deadline
         from routing.providers.base import ProviderError
-        with admission(),admission():
+        with admission(),admission(),self.assertLogs('routing.services.budget',level='WARNING') as logs:
             payload=dict(INPUT,destination={'longitude':-98,'latitude':40})
             response=self.client.post('/api/trips/evaluate/',payload,format='json')
             self.assertEqual(response.status_code,503);self.assertEqual(response.data['code'],'service_busy')
-        with patch('routing.services.budget.time.monotonic',side_effect=[0,46]):
-            with self.assertRaises(ProviderError):
+        self.assertIn('source=internal_budget limiter=concurrency',logs.output[0])
+        with patch('routing.services.budget.time.monotonic',side_effect=[0,46]),self.assertLogs('routing.services.budget',level='WARNING') as logs:
+            with self.assertRaises(ProviderError) as caught:
                 with admission():check_deadline()
+        self.assertEqual(caught.exception.code,'provider_timeout')
+        self.assertTrue(caught.exception.retryable)
+        self.assertIn('source=internal_budget limiter=operation_deadline',logs.output[0])

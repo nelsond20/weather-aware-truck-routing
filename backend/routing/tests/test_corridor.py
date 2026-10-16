@@ -76,6 +76,33 @@ class CorridorTests(unittest.TestCase):
         with patch('routing.services.corridor.build_corridor',return_value=CorridorGrid((A,B),20,1000)):
             result=CorridorService(Partial(),RawDataCache(MemoryCache()),'demo').forecast((ROUTE,),0,self.base)
         self.assertEqual(sum(r.level is not None for f in result.frames for r in f.risks),97)
+    def test_checkpoint_request_and_144_location_corridor_fit_separate_budgets(self):
+        from routing.domain.models import CorridorGrid
+        from routing.providers.http import request_json
+        from routing.providers.open_meteo import OpenMeteoWeatherProvider
+        from routing.services.budget import admission
+        grid=CorridorGrid(tuple(Coordinate(-100+i*.001,40) for i in range(144)),20,1000)
+        batches=[]
+        def handle(request):
+            coordinates=list(zip(request.url.params['latitude'].split(','),request.url.params['longitude'].split(',')))
+            batches.append(len(coordinates))
+            values=[{'latitude':float(lat),'longitude':float(lon),'utc_offset_seconds':0,
+                'hourly_units':{'time':'iso8601','wind_speed_10m':'mp/h','rain':'mm','snowfall':'cm'},
+                'hourly':{'time':[(self.base+timedelta(hours=i)).strftime('%Y-%m-%dT%H:%M') for i in range(-1,50)],
+                          'wind_speed_10m':[20]*51,'rain':[0]*51,'snowfall':[0]*51}} for lat,lon in coordinates]
+            return httpx.Response(200,json=values if len(values)>1 else values[0])
+        real_client=httpx.Client
+        weather=OpenMeteoWeatherProvider(request_json)
+        service=CorridorService(weather,RawDataCache(MemoryCache()),'live')
+        with patch('routing.providers.http.httpx.Client',side_effect=lambda **kwargs:real_client(transport=httpx.MockTransport(handle),**kwargs)),patch('routing.services.corridor.build_corridor',return_value=grid):
+            with admission():
+                checkpoints=weather.forecast((A,B),self.base,self.base+timedelta(hours=1))
+            with admission():
+                corridor=service.forecast((ROUTE,),30000,self.base)
+        self.assertEqual(len(checkpoints),2)
+        self.assertEqual(batches,[2,25,25,25,25,25,19])
+        self.assertEqual(len(corridor.frames),49)
+        self.assertTrue(all(len(frame.risks)==144 and all(r.level is not None for r in frame.risks) for frame in corridor.frames))
     def test_empty_routes_and_naive_time_rejected(self):
         with self.assertRaises(ValueError):build_corridor(())
         with self.assertRaises(ValueError):CorridorService(WeatherFake(),RawDataCache(MemoryCache()),'demo').forecast((ROUTE,),0,self.base.replace(tzinfo=None))

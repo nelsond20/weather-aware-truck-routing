@@ -1,5 +1,6 @@
 """Fixed hosts/paths, no redirects/proxies, bounded decoded responses."""
 import json
+import logging
 import time
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
@@ -14,6 +15,13 @@ PUBLIC_HOSTS = ('router.project-osrm.org', 'photon.komoot.io', 'valhalla1.openst
 _public_lock = Lock()
 _last_public_request = {}
 _public_cooldown = {}
+logger = logging.getLogger(__name__)
+PROVIDER_NAMES = {
+    'photon.komoot.io': 'photon',
+    'valhalla1.openstreetmap.de': 'valhalla',
+    'router.project-osrm.org': 'osrm',
+    'api.open-meteo.com': 'open-meteo',
+}
 
 
 def request_json(url,params):
@@ -21,20 +29,26 @@ def request_json(url,params):
     allowed=(parsed.hostname=='router.project-osrm.org' and parsed.path.startswith('/route/v1/driving/')) or (parsed.hostname=='photon.komoot.io' and parsed.path=='/api/') or (parsed.hostname=='api.open-meteo.com' and parsed.path=='/v1/forecast') or (parsed.hostname=='valhalla1.openstreetmap.de' and parsed.path=='/route')
     if parsed.scheme!='https' or parsed.port not in (None,443) or parsed.username or parsed.password or parsed.query or parsed.fragment or not allowed:
         raise ProviderError('provider_contract_invalid','Provider destination is not allowed.')
+    provider = PROVIDER_NAMES[parsed.hostname]
     check_deadline()
     if parsed.hostname in PUBLIC_HOSTS:
         # One worker, at most one request/second per public service, across users.
         with _public_lock:
             now = time.monotonic()
             if now < _public_cooldown.get(parsed.hostname, 0):
+                logger.warning('provider_request_blocked provider=%s host=%s source=upstream_cooldown status=none attempt=0 max_attempts=1 retry_after_seconds=%.3f',
+                               provider,parsed.hostname,_public_cooldown[parsed.hostname]-now)
                 raise ProviderError('provider_rate_limited','Provider quota is unavailable.',True)
             delay = max(0, _last_public_request.get(parsed.hostname, -1) + 1 - now)
             if delay >= remaining_seconds():
+                logger.warning('provider_request_blocked provider=%s host=%s source=internal_budget limiter=host_pacing status=none attempt=0',
+                               provider,parsed.hostname)
                 raise ProviderError('provider_timeout','Provider timed out.',True)
             if delay:
                 time.sleep(delay)
             check_deadline()
             _last_public_request[parsed.hostname] = time.monotonic()
+    attempt = 0
     try:
         headers = {'User-Agent': USER_AGENT}
         if parsed.hostname == 'valhalla1.openstreetmap.de':
@@ -48,6 +62,10 @@ def request_json(url,params):
                     available = remaining_seconds()
                     client.timeout = httpx.Timeout(min(20,available),connect=min(5,available))
                 with client.stream('GET',url,params=params) as response:
+                    # Log the fixed host only: URLs/params and response bodies may contain private data.
+                    logger.log(logging.INFO if response.status_code==200 else logging.WARNING,
+                               'provider_response provider=%s host=%s source=upstream status=%s attempt=%s max_attempts=%s',
+                               provider,parsed.hostname,response.status_code,attempt+1,3 if weather else 1)
                     if weather and response.status_code in (429,502,503,504) and attempt < 2:
                         delay = 2 ** attempt
                         retry = response.headers.get('Retry-After', '')
@@ -60,6 +78,8 @@ def request_json(url,params):
                                 retry_delay = 0
                         delay = max(delay,retry_delay)
                         if delay >= remaining_seconds():
+                            logger.warning('provider_request_blocked provider=%s host=%s source=retry_budget status=%s attempt=%s max_attempts=3 delay_seconds=%s',
+                                           provider,parsed.hostname,response.status_code,attempt+1,delay)
                             if response.status_code == 429:
                                 raise ProviderError('provider_rate_limited','Provider quota is unavailable.',True)
                             raise ProviderError('provider_timeout','Provider retry exceeds its time limit.',True)
@@ -91,8 +111,12 @@ def request_json(url,params):
                 # Release the failed response/connection before waiting to retry.
                 time.sleep(delay)
     except httpx.TimeoutException:
+        logger.warning('provider_request_failed provider=%s host=%s source=transport_timeout status=none attempt=%s',
+                       provider,parsed.hostname,attempt+1)
         raise ProviderError('provider_timeout','Provider timed out.',True) from None
     except httpx.HTTPError:
+        logger.warning('provider_request_failed provider=%s host=%s source=transport_error status=none attempt=%s',
+                       provider,parsed.hostname,attempt+1)
         raise ProviderError('provider_unavailable','Provider is unavailable.',True) from None
     except (ValueError,UnicodeError):
         raise ProviderError('provider_contract_invalid','Provider returned invalid JSON.') from None
